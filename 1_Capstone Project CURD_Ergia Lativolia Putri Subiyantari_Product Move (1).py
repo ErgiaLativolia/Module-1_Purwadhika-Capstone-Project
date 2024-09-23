@@ -7,7 +7,7 @@
 # In[ ]:
 
 
-# Define initial data for product moves
+#### Define initial data for product moves
 product_moves = {
     "REF001": {"Product Name": "Canvas Sling Bag", "day": "Sunday", "date": "2024-09-11", "From": "Inventory A", "To": "Jkt/Partner Location", "Quantity": 10, "Status": "Completed", "Product Cost": 150000},
     "REF002": {"Product Name": "Rakhi", "day": "Monday", "date": "2024-09-12", "From": "Inventory B", "To": "Air/Stock", "Quantity": 15, "Status": "Completed", "Product Cost": 350000},
@@ -264,16 +264,24 @@ def input_to_location():
     location_to = input("Enter Destination warehouse location: ")
     return location_to
 
+def input_day():
+    day = input("Enter Day (e.g., Monday): ").capitalize()
+    return day
+
+def input_date():
+    date = input("Enter Date (DD/MM/YYYY): ")
+    return date
+
 # Main function to create a product move entry
 def add_product_move():
     global product_moves
 
-    # Collecting all details from user input
+# Collecting all details from user input
     new_reference = input_product_reference()
 
-    # Check if reference already exists
+# Check if reference already exists
     if new_reference in product_moves:
-        print(f"\n---INFO---) ID {new_reference} Data already exists\n")
+        print(f"\n---INFO--- ID {new_reference} Data already exists\n")
         return add_product_move()
 
     new_product_name = input_product_name()
@@ -281,8 +289,10 @@ def add_product_move():
     new_product_cost = input_product_cost()
     new_from_location = input_from_location()
     new_to_location = input_to_location()
+    new_day = input_day()  
+    new_date = input_date()  
 
-    # Display the entered data and ask for confirmation
+# Display the entered data and ask for confirmation
     print("\nInput Data:")
     print(f"Reference: {new_reference}")
     print(f"Product Name: {new_product_name}")
@@ -290,30 +300,34 @@ def add_product_move():
     print(f"Price: {new_product_cost}")
     print(f"From Location: {new_from_location}")
     print(f"To Location: {new_to_location}")
+    print(f"Day: {new_day}")
+    print(f"Date: {new_date}")
 
-    # Ask the user if the data is valid
+# Ask the user if the data is valid
     confirmation = input("\nIs the data entered valid? (yes/no): ").lower()
 
     if confirmation == 'yes':
-        # Adding to the global product_moves dictionary
+# Adding to the global product_moves dictionary
         product_moves[new_reference] = {
             "Product Name": new_product_name,
             "Quantity": new_quantity,
             "Product Cost": new_product_cost,
             "From": new_from_location,
             "To": new_to_location,
+            "Day": new_day,  # Adding Day
+            "Date": new_date,  # Adding Date
             "Status": "Completed"
         }
-        print(f"\nProduk {new_reference} berhasil ditambahkan!\n")
+        print(f"\nProduct {new_reference} successfully added!\n")
     elif confirmation == 'no':
-        print("\nData tidak valid. Silakan coba lagi.\n")
+        print("\nData is not valid. Please try again.\n")
     
-    # Return to Menu 2 after handling the input
+# Return to Menu 2 after handling the input
     choice_2()  # Always return to Menu 2 at the end
 
 
 #======================================================UPDATE PRODUCT MOVE======================================================
-# Menu 3
+# Menu 3 - UPDATE PRODUCT MOVE
 def choice_3():
     print(''' 
     MENU 3:
@@ -335,9 +349,9 @@ def choice_3():
 # Input the ID and name of the column to be updated
 def input_product_update():
     global product_moves
-    product_id = input("Input the ID of the Product Move that want to be updated : ")
+    product_id = input("Input the ID of the Product Move that want to be updated: ")
     if product_id in product_moves:
-        column_name = input("Input the name of the column that want to be updated : ")
+        column_name = input("Input the name of the column that want to be updated: ")
         if column_name in product_moves[product_id]:
             update_product_move_info(product_id, column_name)
         else:
@@ -347,19 +361,19 @@ def input_product_update():
         print("\n---INFO--- ID is not found.")
         input_product_update()
 
-#This function is used to update the value in a specific column in the product_moves data based on the product_id
+# This function updates the value in a specific column based on the product_id
 def update_product_move_info(product_id, column_name):
     global product_moves
 
     new_value = input(f"Input new value of ID {product_id} in column {column_name}: ")
 
     if column_name == "Product Name":
-        if len(new_value) > 50:  # For example, product name length limits
+        if len(new_value) > 50:  # Example: product name length limits
             print("\n---INFO--- Product name is too long.")
             new_value = input(f"Input new value of ID {product_id} in column {column_name}: ")
 
-    elif column_name in ["From", "To"]:
-        while len(new_value) == 0:  # Making sure if no blank input
+    elif column_name == "From" or column_name == "To":
+        while len(new_value) == 0:  # Ensure no blank input
             print("\n---INFO--- Location cannot be blank.")
             new_value = input(f"Input new value of ID {product_id} in column {column_name}: ")
 
@@ -375,9 +389,38 @@ def update_product_move_info(product_id, column_name):
             new_value = input(f"Input new value of ID {product_id} in column {column_name}: ")
         new_value = int(new_value)
 
-# Update data
+    elif column_name == "day":
+        if new_value.lower() not in ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"]:
+            print("\n---INFO--- Invalid day. Please enter a valid day (e.g., Monday).")
+            new_value = input(f"Input new value of ID {product_id} in column {column_name}: ")
+
+    elif column_name == "date":
+        while not valid_date_format(new_value):  # Assuming you have a function to validate date format
+            print("\n---INFO--- Invalid date format. Please enter the date in format DD/MM/YYYY.")
+            new_value = input(f"Input new value of ID {product_id} in column {column_name}: ")
+
+    # Update the data
     product_moves[product_id][column_name] = new_value
     print(f"\n---INFO--- {column_name} successfully updated for ID {product_id} to {new_value}.")
+
+# Function to validate date format (e.g., DD/MM/YYYY)
+def valid_date_format(date_string):
+    try:
+        day, month, year = map(int, date_string.split('/'))
+        if 1 <= day <= 31 and 1 <= month <= 12 and year > 0:
+            return True
+        else:
+            return False
+    except ValueError:
+        return False
+
+    # Update data
+    product_moves[product_id][column_name] = new_value
+    print(f"\n---INFO--- {column_name} successfully updated for ID {product_id} to {new_value}.")
+
+    # Show updated data after successful update
+    view_all_product_moves()
+
     continue_or_no()
 
 # To give the user the option whether they want to continue the update or not
@@ -392,7 +435,23 @@ def continue_or_no():
         print("---INFO--- The input you entered is incorrect")
         continue_or_no()
 
-        
+# View all product moves after update
+def view_all_product_moves():
+    global product_moves
+    if product_moves:
+        print("\nSorted Product Moves by Date:\n")
+        print(f"{'ID': <10} {'Product Name': <20} {'Day': <10} {'Date': <12} {'From': <20} {'To': <20} {'Quantity': <10} {'Status': <12} {'Product Cost': <10}")
+        print("-" * 125)  # Line separator
+
+        for product_id, product in product_moves.items():
+            print(f"{product_id: <10} {product.get('Product Name', 'N/A'): <20} {product.get('day', 'N/A'): <10} "
+                  f"{product.get('date', 'N/A'): <12} {product.get('From', 'N/A'): <20} {product.get('To', 'N/A'): <20} "
+                  f"{product.get('Quantity', 'N/A'): <10} {product.get('Status', 'N/A'): <12} {product.get('Product Cost', 'N/A'): <10}")
+    else:
+        print("\n---INFO--- No data available to display.")
+    choice_3()
+
+
 #======================================================DELETE PRODUCT MOVE======================================================
 # Menu 4
 # DELETE (Deleting item from product_moves)
@@ -417,16 +476,17 @@ def choice_4():
 # Function to view all data
 def view_all_product_moves():
     global product_moves
-    print("\n ========DATA PRODUCT MOVE:=========")
-    print("\n Choose column that want to be be deleted")
+    print("\n======== DATA PRODUCT MOVE: ========")
     
-# Displaying table headers with a neater width
-    print(f"{'ID':<6} {'Product Name':<25} {'Day':<10} {'Date':<12} {'From':<25} {'To':<25} {'Quantity':<25} {'Status':<25} {'Product Cost':<25}")
-    print("=" * 125)  # Dividing line
+    # Displaying table headers
+    print(f"{'ID': <10} {'Product Name': <20} {'Day': <10} {'Date': <12} {'From': <15} {'To': <15} {'Quantity': <10} {'Status': <12} {'Product Cost': <10}")
+    print("-" * 125)  # Line separator
 
-# Displaying each record
+    # Displaying each record in a neat format
     for product_id, details in product_moves.items():
-        print(f"{product_id:<6} {details['Product Name']:<25} {details['day']:<10} {details['date']:<12} {details['From']:<25} {details['To']:<25} {details['Quantity']:<25} {details['Status']:<25} {details['Product Cost']:<25}")
+        print(f"{product_id: <10} {details.get('Product Name', 'N/A'): <20} {details.get('day', 'N/A'): <10} "
+              f"{details.get('date', 'N/A'): <12} {details.get('From', 'N/A'): <15} {details.get('To', 'N/A'): <15} "
+              f"{details.get('Quantity', 'N/A'): <10} {details.get('Status', 'N/A'): <12} {details.get('Product Cost', 'N/A'): <10}")
 
 # Input the columns you want to delete
 def input_delete_column():
@@ -437,7 +497,7 @@ def input_delete_column():
     else:
         print("---INFO--- The input column you entered is incorrect")
         input_delete_column()
-        choice_4()
+
 # Checks whether the value to be deleted exists in the record.
 def check_delete_input_value(column_name):
     global product_moves
@@ -448,7 +508,7 @@ def check_delete_input_value(column_name):
     if user_input_value in temp_record_value:
         yes_no_delete(column_name, user_input_value)
     else:
-        print("---INFO--- The input column you entered is incorrect")
+        print("---INFO--- The input value you entered does not exist")
         check_delete_input_value(column_name)
 
 # Delete records based on column name and user input
@@ -459,24 +519,24 @@ def delete_product_move_item(column_name, input_value):
         if input_value in product_moves:
             del product_moves[input_value]
     else:
-        for key in list(product_moves.keys()):
-            if product_moves[key][column_name] == input_value:
-                del product_moves[key]
+        keys_to_delete = [key for key in product_moves if product_moves[key].get(column_name) == input_value]
+        for key in keys_to_delete:
+            del product_moves[key]
 
 # Confirm record deletion
 def yes_no_delete(column_name, input_value):
-    user_input = input("\Are you sure you want to delete this record? (yes/no)? ").lower()
+    user_input = input("Are you sure you want to delete this record? (yes/no)? ").lower()
 
     if user_input == 'yes':
         delete_product_move_item(column_name, input_value)
-        print("(INFO) Record berhasil dihapus.")
-        view_all_product_moves()  # Tampilkan tabel setelah penghapusan
+        print("(INFO) Record successfully deleted.")
+        view_all_product_moves()  # Show table after deletion
     elif user_input == 'no':
-        menu_4()
+        choice_4()
     else:
         print("---INFO--- The input you entered is incorrect")
         yes_no_delete(column_name, input_value)
-
+    choice_4()
 # ============================================EXIT ======================================
 # Menu for exiting the program
 def menu_5():
@@ -500,7 +560,7 @@ def confirm_exit():
     else:
         print("\n---INFO--- Please input 'yes' or 'no'")
         confirm_exit()
-
+        
 # Update your main menu to call the exit function
 def main_menu():
     print("\n---------------Welcome to the Product Move Management System!--------------------")
@@ -533,4 +593,3 @@ def main_menu():
 
 #======================================================RUN===========================================================
 main_menu()  # Run the program
-
